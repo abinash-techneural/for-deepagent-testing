@@ -1,0 +1,97 @@
+services:
+  catalog-service:
+    image: catalog-service
+    pull_policy: never
+    container_name: catalog-service
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+      target: runner
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongodb
+
+  order-service:
+    image: order-service
+    pull_policy: never
+    container_name: order-service
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    env_file:
+      - ./postgre/.env
+      - ./RabbitMQ/.env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    image: payment-service
+    pull_policy: never
+    container_name: payment-service
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./RabbitMQ/.env
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  
+  shipping-service:
+    image: shipping-service
+    pull_policy: never
+    container_name: shipping-service
+    build:
+      context: ./shipping-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./RabbitMQ/.env
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq: 
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL","rabbitmq-diagnostics -q ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      
+
+  postgresql:
+    image: postgres
+    container_name: order-postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/
+    env_file:
+      - ./postgre/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orderdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:latest
+    container_name: catalog-mongo
+    volumes:
+    - mongo-data:/data/db
+volumes:
+  postgres-data:
+  mongo-data:
+  rabbitmq-data:
