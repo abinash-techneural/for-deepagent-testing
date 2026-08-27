@@ -1,0 +1,45 @@
+{
+  "kind": "eks",
+  "spec": {
+    "region": "us-east-1",
+    "kubernetesVersion": "1.34",
+    "instanceType": "m5.large",
+    "desiredNodes": 2,
+    "minNodes": 2,
+    "maxNodes": 3,
+    "endpointPublic": true,
+    "environment": "production",
+    "team": "devops",
+    "costCenter": "",
+    "publicAccessCidrs": "0.0.0.0/0",
+    "controlPlaneLogs": true,
+    "secretsEncryption": false,
+    "systemDiskSize": 100,
+    "ebsCsi": true,
+    "capacityType": "ON_DEMAND",
+    "appNodeGroup": false,
+    "appInstanceTypes": [
+      "m5.large",
+      "m5.xlarge"
+    ],
+    "appCapacityType": "SPOT",
+    "appMinNodes": 2,
+    "appMaxNodes": 20,
+    "appDesiredNodes": 3,
+    "name": "deep-agent-testing-dev",
+    "createVpc": true,
+    "clusterSubnetClass": "both",
+    "nodeSubnetClass": "private",
+    "accessEntries": [
+      {
+        "principalArn": "arn:aws:iam::400200465532:root",
+        "policy": "AmazonEKSClusterAdminPolicy"
+      }
+    ],
+    "vpcCidr": "10.30.0.0/16",
+    "publicSubnetCount": 3,
+    "privateSubnetCount": 3,
+    "singleNatGateway": true,
+    "installAlbController": false
+  }
+}
